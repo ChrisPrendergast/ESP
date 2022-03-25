@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>replit</title>
+    <title>ESP</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
-    <img id="beach" width="32" height="32" src="images/beach.png">
+    <span hidden><img id="beach" width="32" height="32" src="images/beach.png">
     <img id="botbeach" width="32" height="32" src="images/botbeach.png">
     <img id="botbeach2" width="32" height="32" src="images/botbeach2.png">
     <img id="botgrass" width="32" height="32" src="images/botgrass.png">
@@ -84,9 +84,303 @@
     <img id="tundraGraves" width="32" height="32" src="images/tundraGraves.png">
     <img id="tundraRock" width="32" height="32" src="images/tundraRock.png">
     <img id="tundraTree" width="32" height="32" src="images/tundraTree.png">
+    </span>
   </head>
   <body onload = "runCode()">
-    <canvas id="myCanvas" width="16384" height="16384"></canvas>
+    <canvas id="pinCanvas" width="7000" height="4000"></canvas>
+    <canvas id="myCanvas" width="7000" height="4000"></canvas>
+
+
+     <!-- Main Menu -->
+    
+    <div class = "Gear">
+      <img src="Image UI/Gear.png" alt="Gear">
+    </div>
+    <div class = "title-page-headers">
+      <img src="Image UI/Title image.png" alt="Title image" width=50% height=50%>
+    </div>
+    <div id = "LoadingText">Your map is being created! </div>
+
+    
+     <!-- UI Buttons -->
+    <div class = "UIbuttons-container" id = "Editor">
+      <button class ="UIbuttons"id = "EditorButton" onclick="openCloseEditor();">
+        <img src="Image UI/hammer.png" class = "UIimg" alt="EditorImg">
+        <span class = "tooltip" id = "EditorTooltip">Editor</span>
+      </button>
+    </div>
+
+    <div class = "UIbuttons-container" id = "Directory">
+      <button class ="UIbuttons" id = "DirectoryButton" onclick="openCloseWindow(0, 'dirWindow');">
+        <img src="Image UI/books.png" class = "UIimg" alt="DirectoryImg">
+        <span class = "tooltip" id = "DirectoryTooltip">Directory</span>
+      </button>
+    </div>
+
+    <div class = "UIbuttons-container" id = "Calendar">
+      <button class ="UIbuttons"id = "CalendarButton" onclick="openCloseWindow(0, 'calendarWindow');">
+        <img src="Image UI/calendar.png" class = "UIimg" alt="CalendarImg">
+        <span class = "tooltip" id = "CalendarTooltip">Calendar</span>
+      </button>
+    </div>
+
+    <div class = "UIbuttons-container" id = "Save">
+      <button class ="UIbuttons"id = "SaveButton" >
+        <img src="Image UI/floppy-disk.png" class = "UIimg" alt="SaveImg">
+        <span class = "tooltip" id = "SaveTooltip">Save Map</span>
+      </button>
+    </div>
+
+    <div class = "UIbuttons-container" id = "Upload">
+      <button class ="UIbuttons"id = "UploadButton"  onclick="document.getElementById('loadHidden').click()">
+        <img src="Image UI/Upload.png" class = "UIimg" alt="UploadImg">
+        <span class = "tooltip" id = "UploadTooltip">Upload Map</span>
+      </button>
+      <input type="file" style="display: none" id="loadHidden" />
+    </div>
+
+    
+    <!-- Directory -->
+    
+    <div id="dirButton"><button id="dirAcButton" type="button" onclick="openPinFromDir(this.parentNode);">Pin Name</button>
+      <button type="button" class="deletePin" onclick="deletePin(this.parentNode)">X</button>
+    </div>
+
+    <div class="window" id="dirWindow">
+      <div class="header" id="dirWindowHeader"> Directory</div>
+      <div id="dirWindowBody" class="scroll">
+        <div id="category"><input type="text" placeholder="Magenta Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Purple Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Pink Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Red Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Blue Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Cyan Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Lime Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Green Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Yellow Category" id="dirCat" class="inputClass"> <br /> </div>
+        <div id="category"><input type="text" placeholder="Orange Category" id="dirCat" class="inputClass"> <br /> </div>
+      </div>
+      ------<>------ <br />
+      <button type="button" onclick="spawnPin(false, mouse.x, mouse.y + 70);">New Note</button>  
+      <button type="button" onclick="spawnPin(true, mouse.x, mouse.y + 70);">New Character</button>  
+      <br /> ------<>------ <br />
+      <button type="button" onclick="openCloseWindow(1, 'dirWindow');">Close Directory</button>
+    </div>    
+
+        
+    <!-- Pin & Character Windows -->
+    
+    <div id="pinWindow" class ="pin">
+      <div class="header" id="pinWindowHeader"></div>
+      <input name = "pinTitle" id="pinTitle" type="text" value="Title" onkeypress="this.style.width = ((this.value.length + 2)) + 'ch';" id="pinTitle" class="inputClass">
+      <br /> ------< <button id="col" name="colour" onclick="changeColour(this);"></button> >------
+      <br />
+      <textarea class="scrollabletextbox" name="notes"></textarea>
+        <br />
+        <button type="button" id="charClose" onclick="closePin(this);">Save & Close</button>
+        <br />
+    </div>
+
+    <div id="characterWindow" class ="pin">
+      <div class="header" id="characterWindowHeader">Character Name</div>
+      <table class="table">
+          <tbody>
+              <tr>
+                  <td>
+                      <p>
+                          Name <br /> <input type="text" placeholder="Name" id="inputId" name="name" class="inputClass">
+                          <br /> Race <br /> <input type="text" placeholder="Race" id="race" name="race" class="inputClass">
+                          <br /> Pronouns <br /> <input type="text" placeholder="They" id="pronouns" name="pronounA" class="inputClass"> /
+                          <input type="text" placeholder="Them" id="pronouns" name="pronounB" class="inputClass">
+                          <br /> Height <br /> <input type="text" placeholder="Height" id="height" name="height" class="inputClass">
+                          <br /> Weight <br /> <input type="text" placeholder="Weight" id="weight" name="weight" class="inputClass">
+                      </p>
+                    ------<>------
+                    
+                      <table class="table">
+                          <tbody>
+                              <tr>
+                                <td style="color: #d36c6c;">Ability</td>
+                                <td style="color: #d36c6c;">Score</td>
+                                <td style="color: #d36c6c;">Mod</td>
+                              </tr>
+                              <tr>
+                                  <td>Strength</td>
+                                  <td style="width: 10px;"><input style="width: 35px; text-align: center;" type="number" placeholder="10" name="scr" class="inputClass" min="1" max="30"></td>
+                                  <td name="mod" id="mod"></td>
+                              </tr>
+                              <tr>
+                                  <td>Dexterity</td>
+                                  <td style="width: 10px;"><input style="width: 35px; text-align: center;" type="number" placeholder="10" name="scr" class="inputClass" min="1" max="30"></td>
+                                  <td name="mod" id="mod"></td>
+                              </tr>
+                              <tr>
+                                  <td>Constitution</td>
+                                  <td style="width: 10px;"><input style="width: 35px; text-align: center;" type="number" placeholder="10" name="scr" class="inputClass" min="1" max="30"></td>
+                                  <td name="mod" id="mod"></td>
+                              </tr>
+                              <tr>
+                                  <td>Intelligence</td>
+                                  <td style="width: 10px;"><input style="width: 35px; text-align: center;" type="number" placeholder="10" name="scr" class="inputClass" min="1" max="30"></td>
+                                  <td name="mod" id="mod"></td>
+                              </tr>
+                              <tr>
+                                  <td>Wisdom</td>
+                                  <td style="width: 10px;"><input style="width: 35px; text-align: center;" type="number" placeholder="10" name="scr" class="inputClass" min="1" max="30"></td>
+                                  <td name="mod" id="mod"></td>
+                              </tr>
+                              <tr>
+                                  <td>Charisma</td>
+                                  <td style="width: 10px;"><input style="width: 35px; text-align: center;" type="number" placeholder="10" name="scr" class="inputClass" min="1" max="30"></td>
+                                  <td name="mod" id="mod"></td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </td>
+                  <td>
+                      <p>
+                          Notes <br /> <textarea class="scrollabletextbox" name="notes"></textarea>
+                          <br />Ideals <br /> <textarea class="scrollabletextbox" name="ideals"></textarea>
+                          <br />Bonds <br /> <textarea class="scrollabletextbox" name="bonds"></textarea>
+                          <br />Flaws <br /> <textarea class="scrollabletextbox" name="flaws"></textarea>
+                          <br />Traits <br /> <textarea class="scrollabletextbox" name="traits"></textarea>
+                      </p>
+                  </td>
+              </tr>
+          </tbody>
+      </table>
+      ------------< <button id="col" name="colour" onclick="changeColour(this);"></button> >------------
+      <p>
+        <button type="button" onclick="randomiseCharacter(this.parentNode.parentNode);">Randomise Character</button>
+        <button type="button" id="charClose" onclick="closePin(this);">Save & Close</button>
+      </p>
+    </div>
+
+
+    <!-- Editor Paint Window -->
+    
+    <div class="window" id="paintWindow">
+      <div class="header" id="paintWindowHeader"> PaintPicker</div>
+      <div id="paintWindowBody"></div>
+      <button type="ForestButton" onclick="changeBiomePainter(1)" style="background-color:green; border-color:#bbb490; color:green">|_|</button>
+      <button type="WaterButton" onclick="changeBiomePainter(2)" style="background-color:blue; border-color:#bbb490; color:blue">|_|</button>
+      <button type="MountainButton" onclick="changeBiomePainter(3)" style="background-color:grey; border-color:#bbb490; color:grey">|_|</button>
+      <button type="BeachButton" onclick="changeBiomePainter(4)" style="background-color:#FFFACD; border-color:#bbb490; color:#FFFACD">|_|</button>
+    </div>
+    
+
+    <!-- Calendar -->
+
+    <div id="calendarWindow">
+      <div id="calendarWindowHeader"></div>
+      <div id="calendarBody">
+        <div id="container">
+            <div id="header">
+                
+                <div id="monthDisplay"></div>
+                <div>
+                    <button class="calButton" data-modal-target="#customizeModal" id = "customize-button">Customize</button>
+                    <button class="calButton" id="backButton">Back</button>
+                    <button class="calButton" id="nextButton">Next</button>
+                    <button class="calButton" id = "closeCalButton">Close</button>
+                </div>
+            </div>
+        
+            <div id="weekdays">
+                <div id = "sun">Sunday</div>
+                <div id = "mon">Monday</div>
+                <div id = "tue">Tuesday</div>
+                <div id = "wed">Wednesday</div>
+                <div id = "thu">Thursday</div>
+                <div id = "fri">Friday</div>
+                <div id = "sat">Saturday</div>
+            </div>
+        
+            <div id="calendar"></div>
+        </div>
+        
+        <div id="newEventModal">
+            <h2>New Event</h2>
+        
+            <input id="eventTitleInput" placeholder="Event Title" />
+        
+            <button class="calButton" id="saveButton1">Save</button>
+            <button class="calButton" id="cancelButton">Cancel</button>
+        </div>
+        
+        <div id="deleteEventModal">
+            <h2>Event</h2>
+        
+            <p id="eventText"></p>
+        
+            <button class="calButton" id="deleteButton">Delete</button>
+            <button class="calButton" id="closeButton">Close</button>
+        </div>
+        
+        <div class = "customizeModal" id = "customizeModal">
+            <div class = "customizeModal-header">
+                <h1 id = "header1"> Custom Calendar Settings: </h1>
+                <button data-close-button class = "close-button" id = "close-button">&times;</button>
+            </div>
+            <div class = "customizeModal-body">
+                <form>
+                    <div class="mb-3">
+                        <label for = "quantity1" class="form-label">Today Year:</label>
+                        <input type="number" class="form-control" id="quantity1" >
+                        <div id="yearNum" class="form-text">Enter the current year.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for = "quantity3" class="form-label">Number of Months:</label>
+                        <input type="number" class="form-control" id="quantity3" >
+                        <div id="monthNum" class="form-text">Enter the amount of months you wish each year to have.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity4" class="form-label">Number of Days:</label>
+                        <input type="number" class="form-control" id="quantity4">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <label class="form-check-label" for="exampleCheck1">All Months</label>
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label for="quantity5" class="form-label">Which Months:</label>
+                        <input type="number" class="form-control" id="quantity5">
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity6" class="form-label">Number of Days:</label>
+                        <input type="number" class="form-control" id="quantity6">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <label class="form-check-label" for="exampleCheck2">Remaining Months</label>
+                        <input type="checkbox" class="form-check-input" id="exampleCheck2">
+                        <label for="quantity7" class="form-label">Which Months:</label>
+                        <input type="number" class="form-control" id="quantity7">
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity8" class="form-label">Number of Days:</label>
+                        <input type="number" class="form-control" id="quantity8">
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity2" class="form-label">Today Day:</label>
+                        <input type="number" class="form-control" id="quantity2" >
+                    </div>
+                    <div class="mb-3">
+                        <label for="quantity9" class="form-label">Today Month:</label>
+                        <input type="number" class="form-control" id="quantity9">
+                    </div>
+                </form>
+                    <button data-close-button class="calButton">Cancel</button>
+                    <button data-close-button class="calButton" id = "fff" >Submit</button>
+            </div>
+        </div>
+      </div>
+      <div id="modalBackDrop"></div>
+      <div id = "footer"></div>
+    </div>
+
+    <script src="calendar.js"></script>
+    <script src="pinMain.js"></script>
+    <script src="pinCanvas.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script src="saveLoad.js"></script>
     <script>
       class MapNode { //Class for each node in the map
   constructor(height, type) {
@@ -545,9 +839,28 @@
     }
   }
          console.log("rendered");
+        document.body.querySelector('div[class="title-page-headers"]').style.display = "none";
+        document.body.querySelector('div[class="Gear"]').style.display = "none";
+        document.body.querySelector('div[id="LoadingText"]').style.display = "none";
+        //enable canvas
+        var canvases = document.body.querySelectorAll('canvas');
+        for (let index = 0; index < canvases.length; index++) {
+          canvases[index].style.display = "block";
+        }
+        //enable UI
+        var uiElements = document.body.querySelectorAll('div[class="UIbuttons-container"]');
+        for (let index = 0; index < uiElements.length; index++) {
+          uiElements[index].style.display = "block";
+        }
+        //disable title screen
+        
 }
      
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="mapEditor.js"></script>
+
+
     
   </body>
 </html>
