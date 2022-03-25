@@ -1,14 +1,14 @@
  class MapNode { //Class for each node in the map
-  constructor(type, height) {
+  constructor(height, type) {
     this.type = type;
     this.height = height;
     this.attributes = [];
   }
   getType() {
-    return this.type;
+    return (this.type);
   }
   getHeight() {
-    return this.height;
+    return (this.height);
   }
   addAttribute(att) {
     this.attributes.push(att);
@@ -66,25 +66,11 @@ class MapGenerator {
     this.map[posX][posY] = newNode;
   }
 
-  convolution(arr, kernel){
-    let arrLen = arr.length;
-    let kernLow = Math.floor(kernel.length/2);
-    let newMap = Array.from({ length: arrLen }, () => (Array.from({ length: arrLen }, () => (0))));
-    for (let i = 0; i < arrLen; i++){
-      for (let j = 0; j < arrLen; j++){
-        for (let k = -kernLow; k < kernLow+1; k++){
-          for (let l = -kernLow; l < kernLow+1; l++){
-            if (i+k > -1 && i+k < arrLen && j+l > -1 && j+l < arrLen){
-              newMap[i][j] += kernel[k+3][l+3] * arr[i+k][j+l];
-            }
-          }
-        }
-      }
+  makeBiomesReadable(biomeMap, mainMap, water){ //Function to aid in the reading and creation of biomes
+    let waterLevel = 0;
+    if (water==false){
+      waterLevel = -0.0005;
     }
-    return newMap;
-  }
-
-  makeBiomesReadable(biomeMap, mainMap){ //Function to aid in the reading and creation of biomes
     let mapLen = biomeMap.length;
     let newBiomeMap = [];
     for (let i = 0; i<mapLen; i++){
@@ -92,11 +78,11 @@ class MapGenerator {
       for (let j = 0; j < mapLen; j++){
         if (biomeMap[i][j] == 0.001){
           newBiomeMap[i].push(1); //Biome 1
-        } else if (mainMap[i][j] < 0.0039) {
+        } else if (mainMap[i][j] < 0.0039+waterLevel) {
           newBiomeMap[i].push(2); //Beach
-        } else if (mainMap[i][j] < 0.0042) {
+        } else if (mainMap[i][j] < 0.0042+waterLevel) {
           newBiomeMap[i].push(3); //Water
-        } else if (mainMap[i][j] < 0.00425) {
+        } else if (mainMap[i][j] < 0.00425+waterLevel) {
           newBiomeMap[i].push(2); //Beach
         } else {
           newBiomeMap[i].push(4); //Biome 2
@@ -237,7 +223,7 @@ class MapGenerator {
   generateMap(method){
     console.time("Noise Layering");
     let mapArray = [];
-    if (method == 1){ //Added multiple methods of generating the map, they result in different terrain formations most of the time, method 2 performs similarly (sometimes a bit better) in runtime, method 3 performs significantly better but will produce a less visually pleasing result
+    if (method == 1){ //Added multiple methods of generating the map, they result in different terrain formations most of the time, method 2 performs similarly (or sometimes slower, as there is a large variance in runtime of method 1) in runtime, method 3 performs significantly better but will produce a less visually pleasing result
       mapArray = mapGen.arrAdd2D(mapGen.layerNoise(Math.floor(Math.random()*24)+7),mapGen.layerNoise(Math.floor(Math.random()*5)+9), true, true, false); //Looks complicated but is actually pretty simple, adds two randomly selected layerings of noise together to form a more realistic and varied map
     } else if (method == 2) { //Method 2, many lower value noises
       mapArray = mapGen.arrAdd2D(mapGen.layerNoise(Math.floor(Math.random()*5)+12),mapGen.layerNoise(Math.floor(Math.random()*5)+12), true, true, false); 
@@ -254,44 +240,209 @@ class MapGenerator {
     console.time("leveling");
     newMap = mapGen.level(newMap, 10000);
     console.timeEnd("leveling");
-    const biomeMap = mapGen.makeBiomesReadable(mapGen.level(mapGen.average(mapArray, 13), 1000),newMap);
+    const biomeMap = mapGen.makeBiomesReadable(mapGen.level(mapGen.average(mapArray, 13), 1000),newMap, true);
     console.time("map loading");
     mapGen.loadMap(newMap, biomeMap, 13); //Loads in map removing the 13 dead pixels at the top and left of the map
     console.timeEnd("map loading");
     return [newMap,biomeMap];
   }
+
+  decide(pixels){
+    if (pixels[1][1].getType() == 1){ //Grass
+      if (pixels[0][1].getHeight() > pixels[1][1].getHeight()){ //Top middle higher
+        if (pixels[1][0].getHeight() > pixels[1][1].getHeight()){ //Left middle higher
+          //DISPLAY GRASS TOPLEFT
+          return "topleftgrass";
+        } else if (pixels[1][2].getHeight() > pixels[1][1].getHeight()){ //Right middle higher
+          //DISPLAY GRASS TOPRIGHT
+          return "toprightgrass";
+        } else {
+          //DISPLAY GRASS TOP
+          return "topgrass";
+        }
+        
+      } else if (pixels[2][1].getHeight() > pixels[1][1].getHeight()) { //Bottom middle higher
+        if (pixels[1][0].getHeight() > pixels[1][1].getHeight()) { //Left middle higher
+          //DISPLAY GRASS BOTLEFT
+          return "botleftgrass";
+        } else if (pixels[1][2].getHeight() > pixels[1][1].getHeight()) { //Right middle higher
+          //DISPLAY GRASS BOTRIGHT
+          return "botrightgrass";
+        } else {
+          //DISPLAY GRASS BOT
+          return "botgrass";
+        }
+        
+      } else if (pixels[1][2].getHeight() > pixels[1][1].getHeight()) { //Right middle higher
+        //DISPLAY GRASS RIGHT
+        return "rightgrass"
+      } else if (pixels[1][0].getHeight() > pixels[1][1].getHeight()) { //Left middle highter
+        //DISPLAY GRASS LEFT
+        return "leftgrass";
+      } else {
+        //DISPLAY GRASS
+        return "grass";
+      }
+    } else if (pixels[1][1].getType() == 2) { //Beach EXPAND TO ALL BIOME VARIANTS
+      if (pixels[0][1].getType() == 1){ //Top middle grassland
+        if (pixels[1][0].getType() != 2) { //Middle left not same biome
+          //DISPLAY TOPLEFT BEACH GRASS
+          return "topleftbeach";
+        } else if (pixels[1][2].getType() != 2) { //Middle right not same biome
+          //DISPLAY TOPRIGHT BEACH GRASS
+          return "toprightbeach";
+        } else {
+          //DISPLAY TOP BEACH GRASS
+          return "topbeach";
+        }
+        
+      } else if (pixels[0][1].getType() == 4){ //Top middle tundra
+        if (pixels[1][0].getType() != 2) { //Middle left not same biome
+          //DISPLAY TOPLEFT BEACH TUNDRA
+          return "topleftbeach2";
+        } else if (pixels[1][2].getType() != 2) { //Middle right not same biome
+          //DISPLAY TOPRIGHT BEACH TUNDRA
+          return "toprightbeach2";
+        } else {
+          //DISPLAY TOP BEACH TUNDRA
+          return "topbeach2";
+        }
+        
+      } else if (pixels[2][1].getType() == 1) { //Bot middle grassland
+        if (pixels[1][0].getType() != 2) { //Middle left not same
+          //DISPLAY BOTLEFT BEACH GRASS
+          return "botleftbeach";
+        } else if (pixels[1][2].getType() != 2) {//Middle right not same 
+          //DISPLAY BOTRIGHT BEACH GRASS
+          return "botrightbeach";
+        } else{
+          //DISPLAY BOT BEACH GRASS
+          return "botbeach";
+        }
+      } else if (pixels[2][1].getType() == 4) { //Bot middle tundra
+        if (pixels[1][0].getType() != 2) { //Middle left not same
+          //DISPLAY BOTLEFT BEACH TUNDRA
+          return "botleftbeach2";
+        } else if (pixels[1][2].getType() != 2) {//Middle right not same 
+          //DISPLAY BOTRIGHT BEACH TUNDRA
+          return "botrightbeach2";
+        } else{
+          //DISPLAY BOT BEACH TUNDRA
+          return "botbeach2";
+        }
+      } else if (pixels[1][0].getType() == 1) { //Middle left grass
+        //DISPLAY LEFT BEACH GRASS
+        return "leftbeach";
+      } else if (pixels[1][0].getType() == 4) { //Middle left tundra
+        //DISPLAY LEFT BEACH TUNDRA
+        return "leftbeach2";
+      } else if (pixels[1][2].getType() == 1) { //Middle right not same biome
+        //DISPLAY RIGHT BEACH GRASS
+        return "rightbeach";
+      } else if (pixels[1][2].getType() == 4) {
+        //DISPLAY RIGHT BEACH TUNDRA
+        return "rightbeach2";
+      }
+    } else if (pixels[1][1].getType() == 3) { //Water
+      if (pixels[0][1].getType() == 2) { //Top middle beach
+        if (pixels[1][0].getType() == 2) { //Left middle beach
+          //DISPLAY TOPLEFT BEACH WATER
+          return "topleftwater3";
+        } else if (pixels[1][2].getType() == 2) { //Right middle beach
+          //DISPLAY TOPRIGHT BEACH WATER
+          return "toprightwater3";
+        } else {
+          //DISPLAY TOP BEACH WATER
+          return "topwater3";
+        }
+      } else if (pixels[2][1].getType() == 2) { //Bottom middle beach
+        if (pixels[1][0].getType() == 2) { //Left middle beach
+          //DISPLAY BOTLEFT BEACH WATER
+          return "botleftwater3";
+        } else if (pixels[1][2].getType() == 2) { //Right middle beach
+          //DISPLAY BOTRIGHT BEACH WATER
+          return "botrightwater3";
+        } else {
+          //DISPLAY BOT BEACH WATER
+          return "botwater3";
+        }
+      } else if (pixels[1][0].getType() == 2) { //Left middle beach
+        //DISPLAY LEFT BEACH WATER
+        return "leftwater3";
+      } else if (pixels[1][2].getType() == 2) { //Right middle beach
+        //DISPLAY RIGHT BEACH WATER
+        return "rightwater3";
+      } else {
+        //DISPLAY WATER
+        return "water";
+      }
+    } else if (pixels[1][1].getType() == 4) { //Tundra
+      if (pixels[0][1].getHeight() > pixels[1][1].getHeight()){ //Top middle higher
+        if (pixels[1][0].getHeight() > pixels[1][1].getHeight()){ //Left middle higher
+          //DISPLAY TUNDRA TOPLEFT
+          return "toplefttundra";
+        } else if (pixels[1][2].getHeight() > pixels[1][1].getHeight()){ //Right middle higher
+          //DISPLAY TUNDRA TOPRIGHT
+          return "toprighttundra";
+        } else {
+          //DISPLAY TUNDRA TOP
+          return "toptundra";
+        }
+        
+      } else if (pixels[2][1].getHeight() > pixels[1][1].getHeight()) { //Bottom middle higher
+        if (pixels[1][0].getHeight() > pixels[1][1].getHeight()) { //Left middle higher
+          //DISPLAY TUNDRA BOTLEFT
+          return "botlefttundra";
+        } else if (pixels[1][2].getHeight() > pixels[1][1].getHeight()) { //Right middle higher
+          //DISPLAY TUNDRA BOTRIGHT
+          return "botrighttundra";
+        } else {
+          //DISPLAY TUNDRA BOT
+          return "bottundra";
+        }
+        
+      } else if (pixels[1][2].getHeight() > pixels[1][1].getHeight()) { //Right middle higher
+        //DISPLAY TUNDRA RIGHT
+        return "righttundra";
+      } else if (pixels[1][0].getHeight() > pixels[1][1].getHeight()) { //Left middle highter
+        //DISPLAY TUNDRA LEFT
+        return "lefttundra";
+      } else {
+        //DISPLAY TUNDRA
+        return "tundra";
+      }
+    }
+  }  
 }
 
 
+  
 
-var canvas = document.getElementById("myCanvas");
-var ctx = canvas.getContext("2d");
-
-
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-mapGen = new MapGenerator(1200,[""]);
-let [newMap,biomeMap] = mapGen.generateMap(1);
-let tot = 0;
-for (let i = -0.9783333, row = 13; i < 1; i+=0.00166666, row++){ //Rudimentary map display
-  // THERE IS A 13 PIXEL OFFSET AT THE TOP WHEN DISPLAYING, NOTE THIS IS NOT PRESENT IN THE mapGen's map, which is loaded in with the loadMap function
-  for (let j = -0.9783333, col = 13; j < 1; j+=0.001666666, col++)
-  {
-    tot += newMap[row][col];
-    
-    if (biomeMap[row][col] == 1){ //Fills the green areas
-      ctx.fillStyle = "#00"+parseInt((newMap[row][col]*35000)).toString(16) + "00";
-    } else if(biomeMap[row][col] == 2) { //Fills one part of beach
-      ctx.fillStyle = "#FFFACD";
-    } else if(biomeMap[row][col] == 3) { //Fills water
-      ctx.fillStyle = "#0000"+parseInt((newMap[row][col]*35000)).toString(16);
-    } else if(biomeMap[row][col] == 2) { // Fills other part of beach
-      ctx.fillStyle = "#FFFACD";
-    } else { //Fills biome 2
-      ctx.fillStyle = "#"+parseInt((newMap[row][col]*40000)).toString(16).repeat(3);
+function runCode(){
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+  
+  
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  mapGen = new MapGenerator(1200,[""]);
+  let [newMap,biomeMap] = mapGen.generateMap(2);
+  let img = document.getElementById("grass");
+  let tempDefiner = new MapNode(0,0);
+  let pixelList = [[tempDefiner,tempDefiner,tempDefiner],[tempDefiner,tempDefiner,tempDefiner],[tempDefiner,tempDefiner,tempDefiner]];
+  let mapFinal = mapGen.pullMap();
+  for (let i=0; i<1187; i++){
+    for (let j=0; j<1187; j++){
+      for (let m = -1; m < 2; m++){
+        for (let n = -1; n < 2; n++){
+          if (i+m >= 0 && j+n >= 0 && j+n <= 1186 && i+m <= 1186){
+            pixelList[m+1][n+1] = mapFinal[i+m][j+n];
+          } else {
+            pixelList[m+1][n+1] = new MapNode(0.004,4); //Defines nodes outside the bound to be water
+          }
+        }
+      }
+      img = document.getElementById(mapGen.decide(pixelList));
+      ctx.drawImage(img, i*32, j*32);
     }
-    ctx.fillRect((i+1)*600, (j+1)*600, 1, 1);
-    //console.log(biomeMap[row][col]);
   }
 }
-tot /= (newMap.length-13)*(newMap.length-13);
-console.log(tot);
