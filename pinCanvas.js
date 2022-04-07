@@ -19,7 +19,7 @@ class Pin {
     this.y = y;
     this.radius = radius;
     this.defaultRadius = radius;
-    this.largeRadius = radius * 5;
+    this.largeRadius = radius * 3;
     this.colour = 0;
     this.openCol = "#ffffff";
     this.moving = false;
@@ -185,13 +185,8 @@ window.addEventListener('mouseup', function(){
   }
 });
 
-window.addEventListener('resize', function(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-
 function spawnPin(isChar, x, y){
-  var radius = 5;
+  var radius = 10;
   pins.push(new Pin(x, y, radius, pins.length, isChar)); //Add pin to worldspace
   openPin(mouse.x,mouse.y + 80,pins.length-1);
   //var x = document.body.querySelectorAll('div[class="pin"]');

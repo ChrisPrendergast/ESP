@@ -87,6 +87,7 @@
     </span>
   </head>
   <body onload = "runCode()">
+  <!-- <body> -->
     <canvas id="pinCanvas" width="7000" height="4000"></canvas>
     <canvas id="myCanvas" width="7000" height="4000"></canvas>
 
@@ -99,7 +100,7 @@
     <div class = "title-page-headers">
       <img src="Image UI/Title image.png" alt="Title image" width=50% height=50%>
     </div>
-    <div id = "LoadingText">Your map is being created! </div>
+    <div id = "LoadingText-container"> <h1 id = "LoadingText"> Your map is being created! </h1>> </div>
 
     
      <!-- UI Buttons -->
@@ -841,7 +842,8 @@
          console.log("rendered");
         document.body.querySelector('div[class="title-page-headers"]').style.display = "none";
         document.body.querySelector('div[class="Gear"]').style.display = "none";
-        document.body.querySelector('div[id="LoadingText"]').style.display = "none";
+       
+        document.body.querySelector('div[id="LoadingText-container"]').style.display = "none";
         //enable canvas
         var canvases = document.body.querySelectorAll('canvas');
         for (let index = 0; index < canvases.length; index++) {
@@ -852,10 +854,10 @@
         for (let index = 0; index < uiElements.length; index++) {
           uiElements[index].style.display = "block";
         }
-        //disable title screen
         
 }
-     
+     canvas.width = mapCanvas.width;
+      canvas.height = mapCanvas.height;
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="mapEditor.js"></script>

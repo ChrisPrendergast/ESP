@@ -27,6 +27,7 @@ td {
   background:hsla(50, 90%, 90%, 1);
   text-align: center;
   border: 0px;
+  
 }
 
 #col{
@@ -143,7 +144,6 @@ div.scroll {
   cursor: move;
   z-index: 10;
 }
-
 
 /* calendar styling: */
 
@@ -414,9 +414,21 @@ div.scroll {
   right: 0;
 }
 
+.UIbuttons{
+  background:radial-gradient( rgba(255, 228, 58, 0.8) 10%, rgba(255, 228, 58, 0) );
+  border-radius: 25px;
+    -webkit-transition: all 1000ms cubic-bezier(0.19, 1, 0.22, 1);
+          transition: all 1000ms cubic-bezier(0.19, 1, 0.22, 1);
+  
+}
+
+.UIbuttons:hover{
+  box-shadow: inset 0 0 20px rgba(255, 255, 0, 0.75), 0 0 10px rgba(255, 255, 0, 0.2);
+}
+
 .tooltip {
   visibility: hidden;
-  width: 120px;
+  width: 65px;
   background-color: black; 
   color: #fff;
   text-align: center;
@@ -425,9 +437,30 @@ div.scroll {
   z-index: 1;
   bottom: 0;
   right: 0;
-  padding-left: 60px;
   opacity: 0;
   transition: opacity 0.6s;
+}
+
+#DirectoryTooltip{
+  left: 66px;
+  bottom: 25px;
+}
+
+#EditorTooltip{
+  left: 66px;
+  bottom: 25px;
+}
+
+#CalendarTooltip{
+  background-color: black;
+}
+
+#SaveTooltip{
+  bottom: 66px;
+}
+
+#UploadTooltip{
+  bottom: 66px;
 }
 
 #Directory:hover #DirectoryTooltip{
@@ -486,11 +519,23 @@ body{
     transform: rotate(359deg);
   }
 }
-
-#LoadingText{
-  display: flex;
+#LoadingText-container{
+  position: absolute;
+  display: block;
   justify-content: center;
   aling-items: center;
+  text-align: center;
+  top: 60%;
+  left: 35%;
+}
+
+#LoadingText{
+  
   font-family: 'Brush Script MT', cursive;
   font-size: 50px;
+  background-image: linear-gradient(0deg, #ffe0f0  , #ffab5c );
+  background-size: 100%;
+  background-repeat: repeat;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
