@@ -3,6 +3,8 @@ let clicked = null;
 let events = [];
 let cust = false;
 
+//credits : https://github.com/portexe/VanillaCalendar/blob/master/script.js
+
 const calendar = document.getElementById('calendar');
 const eventM = document.getElementById('newEventModal');
 const deleteM = document.getElementById('deleteEventModal');
@@ -122,7 +124,7 @@ function load() {
         // const daysInMonth = new Date(year, month + 1, 0).getDate();
         const daysInMonth = lastDays[currMonth];
 
-
+    // credits: https://github.com/portexe/VanillaCalendar/blob/master/script.js
         const dateString = firstDayOfMonth.toLocaleDateString('en-us', {
             weekday: 'long',
             year: 'numeric',
