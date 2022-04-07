@@ -541,14 +541,14 @@
     return arr1;
   }
   
-  gradientCalc(hash, x, y) {
+  gradientCalc(hash, x, y) { // Translated and adapted from: SRombauts, 2015 [Computer Program], Available from: https://github.com/SRombauts/SimplexNoise/blob/master/src/SimplexNoise.cpp [Accessed 15 Feb 2022]
     let h = hash & 0x3F;
     let u = h < 4 ? x : y;
     let v = h < 4 ? y : x;
     return ((h & 1) ? -u : u) + ((h & 2) ? -2 * v : 2 * v);
   }
 
-  simplexNoise(coords) {
+  simplexNoise(coords) { // Translated and adapted from: SRombauts, 2015 [Computer Program], Available from: https://github.com/SRombauts/SimplexNoise/blob/master/src/SimplexNoise.cpp [Accessed 15 Feb 2022]
     let n0 = 0;
     let n1 = 0;
     let n2 = 0;
